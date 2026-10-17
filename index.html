@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>CivicVoice AI</title>
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --background: #f3f6fb;
+            --card: #ffffff;
+            --text: #172033;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --green: #15803d;
+            --orange: #c2410c;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        header {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .brand p {
+            margin: 0.25rem 0 0;
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+
+        .badge {
+            font-size: 0.85rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            background: #e0e7ff;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 1.5rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 820px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.35rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.65rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 95px;
+        }
+
+        .btn-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+            margin-top: 0.75rem;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            padding: 0.65rem 1rem;
+            font-size: 0.92rem;
+            font-weight: 600;
+            background: var(--primary);
+            color: #ffffff;
+            transition: background 0.15s ease;
+        }
+
+        button:hover:not(:disabled) {
+            background: var(--primary-dark);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        button.secondary {
+            background: #e2e8f0;
+            color: var(--text);
+        }
+
+        button.secondary:hover:not(:disabled) {
+            background: #cbd5e1;
+        }
+
+        button.danger {
+            background: #dc2626;
+        }
+
+        .status-msg {
+            margin-top: 0.75rem;
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+
+        .complaint-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            margin-top: 1rem;
+        }
+
+        .complaint-item {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+            background: #f8fafc;
+        }
+
+        .complaint-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.5rem;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <h1>CivicVoice AI</h1>
+            <p>Multilingual AI Civic Complaint Assistant (Local Prototype)</p>
+        </div>
+        <span id="healthBadge" class="badge">Checking server...</span>
+    </header>
+
+    <main class="container">
+        <section class="card">
+            <h2>1. Record or Type Your Complaint</h2>
+
+            <div class="form-group">
+                <label for="speechLang">Spoken Audio Language</label>
+                <select id="speechLang">
+                    <option value="unknown">Auto-detect</option>
+                    <option value="en-IN">English (en-IN)</option>
+                    <option value="te-IN">Telugu (te-IN)</option>
+                    <option value="hi-IN">Hindi (hi-IN)</option>
+                    <option value="ta-IN">Tamil (ta-IN)</option>
+                    <option value="kn-IN">Kannada (kn-IN)</option>
+                    <option value="ml-IN">Malayalam (ml-IN)</option>
+                    <option value="bn-IN">Bengali (bn-IN)</option>
+                    <option value="mr-IN">Marathi (mr-IN)</option>
+                    <option value="gu-IN">Gujarati (gu-IN)</option>
+                    <option value="pa-IN">Punjabi (pa-IN)</option>
+                    <option value="od-IN">Odia (od-IN)</option>
+                </select>
+            </div>
+
+            <div class="btn-row">
+                <button id="recordBtn" type="button">🎙️ Start Recording</button>
+                <button id="stopBtn" type="button" class="danger" disabled>⏹️ Stop & Transcribe</button>
+            </div>
+
+            <p id="recordStatus" class="status-msg">Ready to record voice or type below.</p>
+
+            <div class="form-group">
+                <label for="transcript">Citizen Complaint Transcript</label>
+                <textarea id="transcript" placeholder="Speak using the microphone or type your civic issue here..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="location">Location / Landmark</label>
+                <input id="location" type="text" placeholder="e.g., Ward 12, MG Road near Metro Pillar 45">
+            </div>
+
+            <div class="form-group">
+                <label for="responseLanguage">Output Language</label>
+                <select id="responseLanguage">
+                    <option value="English">English</option>
+                    <option value="Telugu">Telugu</option>
+                    <option value="Hindi">Hindi</option>
+                    <option value="Tamil">Tamil</option>
+                    <option value="Kannada">Kannada</option>
+                    <option value="Malayalam">Malayalam</option>
+                    <option value="Bengali">Bengali</option>
+                    <option value="Marathi">Marathi</option>
+                    <option value="Gujarati">Gujarati</option>
+                    <option value="Punjabi">Punjabi</option>
+                    <option value="Odia">Odia</option>
+                </select>
+            </div>
+
+            <div class="btn-row">
+                <button id="analyzeBtn" type="button">🧠 Analyze with Sarvam AI</button>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>2. Structured Complaint Report</h2>
+
+            <div class="form-group">
+                <label for="category">Category</label>
+                <input id="category" type="text" placeholder="Water Supply, Roads, Sanitation...">
+            </div>
+
+            <div class="form-group">
+                <label for="priority">Priority</label>
+                <select id="priority">
+                    <option value="Low">Low</option>
+                    <option value="Medium" selected>Medium</option>
+                    <option value="High">High</option>
+                    <option value="Urgent">Urgent</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="department">Suggested Department</label>
+                <input id="department" type="text" placeholder="Municipal Water Works / GHMC...">
+            </div>
+
+            <div class="form-group">
+                <label for="description">Formal Description</label>
+                <textarea id="description" placeholder="AI-generated structured complaint summary..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="suggestedAction">Suggested Action / Next Steps</label>
+                <textarea id="suggestedAction" placeholder="Recommended resolution steps..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="aiResponse">Assistant Guidance</label>
+                <textarea id="aiResponse" placeholder="Guidance in your selected language..."></textarea>
+            </div>
+
+            <div class="btn-row">
+                <button id="speakBtn" type="button" class="secondary">🔊 Listen to Guidance</button>
+                <button id="saveBtn" type="button">🗂️ Save Complaint Draft</button>
+            </div>
+
+            <audio id="audioPlayer" controls style="width:100%; margin-top:0.85rem; display:none;"></audio>
+            <p id="saveStatus" class="status-msg"></p>
+        </section>
+
+        <section class="card full-width">
+            <div class="complaint-header">
+                <h2 style="margin:0;">3. Saved Complaint History</h2>
+                <button id="refreshBtn" type="button" class="secondary">🔄 Refresh</button>
+            </div>
+            <div id="complaintList" class="complaint-list"></div>
+        </section>
+    </main>
+
+    <script>
+        let mediaRecorder = null;
+        let audioChunks = [];
+
+        const healthBadge = document.getElementById("healthBadge");
+        const recordBtn = document.getElementById("recordBtn");
+        const stopBtn = document.getElementById("stopBtn");
+        const recordStatus = document.getElementById("recordStatus");
+        const analyzeBtn = document.getElementById("analyzeBtn");
+        const speakBtn = document.getElementById("speakBtn");
+        const saveBtn = document.getElementById("saveBtn");
+        const refreshBtn = document.getElementById("refreshBtn");
+        const audioPlayer = document.getElementById("audioPlayer");
+        const saveStatus = document.getElementById("saveStatus");
+
+        async function checkHealth() {
+            try {
+                const res = await fetch("/api/health");
+                const data = await res.json();
+                healthBadge.textContent = data.sarvam_key_configured
+                    ? "Sarvam API Connected"
+                    : "API Key Missing (.env)";
+            } catch (err) {
+                healthBadge.textContent = "Server Offline";
+            }
+        }
+
+        recordBtn.addEventListener("click", async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioChunks = [];
+                mediaRecorder = new MediaRecorder(stream);
+
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) audioChunks.push(e.data);
+                };
+
+                mediaRecorder.onstop = async () => {
+                    const blob = new Blob(audioChunks, { type: "audio/webm" });
+                    const formData = new FormData();
+                    formData.append("audio", blob, "recording.webm");
+                    formData.append("language_code", document.getElementById("speechLang").value);
+
+                    recordStatus.textContent = "Transcribing audio with Sarvam Speech-to-Text...";
+                    try {
+                        const res = await fetch("/api/transcribe", {
+                            method: "POST",
+                            body: formData,
+                        });
+                        const data = await res.json();
+                        if (!res.ok) throw new Error(data.detail || "Transcription failed");
+                        document.getElementById("transcript").value = data.transcript;
+                        recordStatus.textContent = "Transcription complete.";
+                    } catch (err) {
+                        recordStatus.textContent = "Error: " + err.message;
+                    }
+                };
+
+                mediaRecorder.start();
+                recordBtn.disabled = true;
+                stopBtn.disabled = false;
+                recordStatus.textContent = "Recording... Speak clearly into your microphone.";
+            } catch (err) {
+                recordStatus.textContent = "Microphone access denied or unavailable.";
+            }
+        });
+
+        stopBtn.addEventListener("click", () => {
+            if (mediaRecorder && mediaRecorder.state !== "inactive") {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach((t) => t.stop());
+                recordBtn.disabled = false;
+                stopBtn.disabled = true;
+            }
+        });
+
+        analyzeBtn.addEventListener("click", async () => {
+            const transcript = document.getElementById("transcript").value.trim();
+            const location = document.getElementById("location").value.trim();
+            const language = document.getElementById("responseLanguage").value;
+
+            if (transcript.length < 3) {
+                alert("Please enter or record a complaint first.");
+                return;
+            }
+
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = "Analyzing...";
+            try {
+                const res = await fetch("/api/analyze", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ transcript, location, language }),
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || "Analysis failed");
+
+                document.getElementById("category").value = data.category || "Other";
+                document.getElementById("priority").value = data.priority || "Medium";
+                document.getElementById("department").value = data.department || "";
+                document.getElementById("description").value = data.description || "";
+                document.getElementById("suggestedAction").value = data.suggested_action || "";
+                document.getElementById("aiResponse").value = data.response || "";
+            } catch (err) {
+                alert("Error: " + err.message);
+            } finally {
+                analyzeBtn.disabled = false;
+                analyzeBtn.textContent = "🧠 Analyze with Sarvam AI";
+            }
+        });
+
+        speakBtn.addEventListener("click", async () => {
+            const text = (
+                document.getElementById("aiResponse").value.trim() ||
+                document.getElementById("description").value.trim()
+            );
+            const language = document.getElementById("responseLanguage").value;
+
+            if (!text) {
+                alert("Nothing to read aloud yet. Analyze a complaint first.");
+                return;
+            }
+
+            speakBtn.disabled = true;
+            speakBtn.textContent = "Generating audio...";
+            try {
+                const res = await fetch("/api/speak", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text, language }),
+                });
+                if (!res.ok) {
+                    const errData = await res.json();
+                    throw new Error(errData.detail || "Speech generation failed");
+                }
+                const blob = await res.blob();
+                audioPlayer.src = URL.createObjectURL(blob);
+                audioPlayer.style.display = "block";
+                audioPlayer.play();
+            } catch (err) {
+                alert("Error: " + err.message);
+            } finally {
+                speakBtn.disabled = false;
+                speakBtn.textContent = "🔊 Listen to Guidance";
+            }
+        });
+
+        saveBtn.addEventListener("click", async () => {
+            const payload = {
+                transcript: document.getElementById("transcript").value.trim(),
+                location: document.getElementById("location").value.trim(),
+                language: document.getElementById("responseLanguage").value,
+                category: document.getElementById("category").value.trim() || "Other",
+                description: document.getElementById("description").value.trim(),
+                priority: document.getElementById("priority").value,
+                department: document.getElementById("department").value.trim() || "Not determined",
+                suggested_action: document.getElementById("suggestedAction").value.trim(),
+            };
+
+            if (payload.transcript.length < 3 || payload.description.length < 3) {
+                alert("Please provide both a transcript and a complaint description before saving.");
+                return;
+            }
+
+            try {
+                const res = await fetch("/api/complaints", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || "Could not save complaint");
+                saveStatus.textContent = `${data.id}: ${data.message}`;
+                loadComplaints();
+            } catch (err) {
+                saveStatus.textContent = "Error: " + err.message;
+            }
+        });
+
+        async function updateComplaintStatus(id, status) {
+            try {
+                const res = await fetch(`/api/complaints/${id}/status`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ status }),
+                });
+                if (!res.ok) {
+                    const data = await res.json();
+                    throw new Error(data.detail || "Failed to update status");
+                }
+                loadComplaints();
+            } catch (err) {
+                alert("Error: " + err.message);
+            }
+        }
+
+        async function loadComplaints() {
+            const listEl = document.getElementById("complaintList");
+            try {
+                const res = await fetch("/api/complaints");
+                const items = await res.json();
+                if (!items.length) {
+                    listEl.innerHTML = "<p class='status-msg'>No saved complaints yet.</p>";
+                    return;
+                }
+                const statuses = [
+                    "Draft",
+                    "Ready to submit",
+                    "Submitted (self-reported)",
+                    "Resolved (self-reported)",
+                ];
+                listEl.innerHTML = items.map((item) => `
+                    <div class="complaint-item">
+                        <div class="complaint-header">
+                            <strong>${item.id} — ${item.category} (${item.priority})</strong>
+                            <select onchange="updateComplaintStatus('${item.id}', this.value)" style="width:auto;">
+                                ${statuses.map((s) => `<option value="${s}" ${item.status === s ? "selected" : ""}>${s}</option>`).join("")}
+                            </select>
+                        </div>
+                        <p style="margin:0.25rem 0;"><strong>Department:</strong> ${item.department} | <strong>Location:</strong> ${item.location}</p>
+                        <p style="margin:0.25rem 0;">${item.description}</p>
+                    </div>
+                `).join("");
+            } catch (err) {
+                listEl.innerHTML = "<p class='status-msg'>Could not load complaints.</p>";
+            }
+        }
+
+        refreshBtn.addEventListener("click", loadComplaints);
+        checkHealth();
+        loadComplaints();
+    </script>
+</body>
+</html>
